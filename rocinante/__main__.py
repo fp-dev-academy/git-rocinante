@@ -3,7 +3,7 @@
 import sys
 
 from rocinante.combustible import calcula_consum
-from rocinante.navegacio import temps_trajecte
+from rocinante.navegacio import rumb_emergencia, temps_trajecte
 from rocinante.tripulacio import TRIPULACIO
 
 US = """Ús: python -m rocinante <ordre>
@@ -11,7 +11,8 @@ US = """Ús: python -m rocinante <ordre>
 Ordres:
   tripulacio                            llista la tripulació
   consum MASSA_T ACCELERACIO_G          consum de massa de reacció
-  trajecte DISTANCIA_KM VELOCITAT_KMS   temps de trajecte"""
+  trajecte DISTANCIA_KM VELOCITAT_KMS   temps de trajecte
+  rumb GRAUS_PERILL                     rumb d'emergència"""
 
 
 def main(arguments):
@@ -30,6 +31,9 @@ def main(arguments):
         elif ordre == "trajecte":
             distancia_km, velocitat_kms = map(float, valors)
             print(f"Temps de trajecte: {temps_trajecte(distancia_km, velocitat_kms):.2f} h")
+        elif ordre == "rumb":
+            (rumb_perill,) = map(float, valors)
+            print(f"Rumb d'emergència: {rumb_emergencia(rumb_perill):.0f} graus")
         else:
             print(US)
             return 2
