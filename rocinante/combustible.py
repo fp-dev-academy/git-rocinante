@@ -12,5 +12,8 @@ def calcula_consum(massa_t, acceleracio_g, eficiencia=1.0,
 
 
 def consum_en_repos(massa_t):
-    """Consum de massa de reacció amb els motors al ralentí, en tones per hora."""
+    """Consum de massa de reacció amb els motors al ralentí.
+
+    La massa és en tones i el resultat, en tones per hora.
+    """
     return massa_t * 0.01
