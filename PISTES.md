@@ -1,67 +1,63 @@
-# Pistes · Pas 00
+# Pistes · Pas 01
 
 Llegeix només la pista que necessitis.
 
-## `git clone` diu `Permission denied (publickey)`
+## `git status` no mostra `__pycache__/`
 
-GitHub no reconeix la teva clau SSH. Comprova-ho:
+Python només el crea quan executa el codi. Executa abans
+`python -m rocinante tripulacio`. Si tampoc no surt `.idea/`, obre la carpeta
+del projecte amb PyCharm.
 
-```bash
-ssh -T git@github.com
-```
+## He fet commit de `__pycache__/` o de `.idea/`
 
-Si no respon `Hi <usuari>! You've successfully authenticated`, la clau no
-està configurada. Revisa *Settings → SSH and GPG keys* al teu compte de
-GitHub i que la clau pública que hi has posat és la del fitxer
-`~/.ssh/id_ed25519.pub` d'aquest ordinador.
-
-## `verifica.py` diu que `origin` apunta al repositori guia
-
-Has clonat el repositori de la flota en lloc del teu fork. No cal tornar a
-clonar: canvia l'adreça d'`origin` per la del teu fork.
+Treu-los de l'índex sense esborrar-los del disc, i fes un commit nou:
 
 ```bash
-git remote set-url origin git@github.com:<usuari>/git-rocinante.git
+git rm -r --cached rocinante/__pycache__ .idea
+git commit -m "chore: deixa de versionar els fitxers generats"
 ```
 
-## `verifica.py` diu que `origin` no fa servir SSH
+Si ja tens el `.gitignore`, no tornaran a aparèixer.
 
-Has clonat amb l'adreça `https://...`. Canvia-la per la d'SSH:
+## Vull tornar a començar el pas
 
 ```bash
-git remote set-url origin git@github.com:<usuari>/git-rocinante.git
+git switch -C treball/pas-01 pas-01
 ```
 
-## M'he equivocat en escriure l'adreça d'`upstream`
+La branca torna a l'estat inicial del pas. Els fitxers ignorats o sense
+seguiment (`__pycache__/`, `.idea/`, `.gitignore`) es queden on són.
 
-`git remote add` no es pot repetir amb el mateix nom. Corregeix-la:
+## `verifica.py` diu que `tripulacio.py` té un error de sintaxi
+
+Cada element de la llista acaba amb una coma i va entre `{` i `}`:
+
+```python
+    {"nom": "Alex Kamal", "rol": "pilot"},
+    {"nom": "El teu nom", "rol": "cadet"},
+]
+```
+
+Comprova-ho executant `python -m rocinante tripulacio`.
+
+## El missatge d'un commit no té el format correcte
+
+Si és **l'últim** commit i encara no l'has pujat enlloc, en pots canviar el
+missatge:
 
 ```bash
-git remote set-url upstream git@github.com:fp-dev-academy/git-rocinante.git
+git commit --amend -m "feat: afegeix el teu nom a la tripulació"
 ```
 
-## `python: command not found`
+Ho veuràs amb detall al pas 03.
 
-A Windows, de vegades el Python només respon com a `py`:
+## `git commit` ha obert el Bloc de notes
 
-```bash
-py --version
-py verifica.py 00
-```
+Has fet `git commit` sense `-m`. Escriu el missatge a la primera línia,
+desa i tanca la finestra. Si la tanques sense escriure res, Git cancel·la el
+commit.
 
-## No veig els tags
+## `verifica.py` diu que el directori de treball no està net
 
-Si `git tag` no mostra res, segurament has fet el fork amb *Copy the `main`
-branch only* marcada. Demana els tags a la flota:
-
-```bash
-git fetch upstream --tags
-```
-
-Les branques de la tripulació també hi falten, però les trobaràs a
-`upstream` quan les necessitis (pas 05).
-
-## M'he equivocat en el nom o el correu
-
-Torna a executar la mateixa ordre amb el valor correcte. La configuració
-nova substitueix l'anterior.
+Tens canvis sense commit. `git status` et diu quins són: fes-ne commit o
+descarta'ls amb `git restore <fitxer>`.

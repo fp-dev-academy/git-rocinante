@@ -1,111 +1,126 @@
-# Pas 00 · Embarcament
+# Pas 01 · Primera entrada al diari
 
-> És un pas de preparació (compte, clau SSH i fork). Si feu els reptes en
-> grup, val la pena que cadascú el tingui fet abans de començar.
-
-Ningú no puja a la Rocinante sense registrar-se. Necessites la teva còpia
-del diari de bord, connectada amb la de la flota, i que Git sàpiga qui ets.
+Ja ets a bord, però el diari encara no ho sap: el teu nom no surt a la llista
+de la tripulació. I, de passada, l'Amos s'ha queixat que el diari s'omple de
+brossa cada vegada que algú obre l'ordinador de bord.
 
 ## Què aprendràs
 
-- Què és un **fork** i per què en fas un.
-- Clonar un repositori per **SSH**.
-- Què són els **remots** `origin` i `upstream`.
-- Configurar Git: nom, correu i editor.
+- Les **tres zones** de Git: directori de treball, *staging* (índex) i
+  repositori.
+- `git status`, `git diff`, `git add` i `git commit`.
+- Escriure **missatges de commit** amb el format Conventional Commits.
+- Fer que Git **ignori** fitxers amb `.gitignore`.
+
+## Les tres zones
+
+```
+directori de treball  --git add-->  staging  --git commit-->  repositori
+  (els teus fitxers)                (el que                   (la història)
+                                     anirà al commit)
+```
+
+`git status` et diu, en tot moment, què hi ha a cada zona. Executa'l sovint.
 
 ## El repte
 
-### 1. Fes el fork (a GitHub, al navegador)
-
-Un fork és una còpia del repositori al **teu** compte de GitHub. Hi podràs
-pujar canvis sense tocar el repositori de la flota.
-
-1. Obre <https://github.com/fp-dev-academy/git-rocinante>.
-2. Fes clic a **Fork**.
-3. A *Owner*, tria el teu usuari.
-4. **Desmarca *Copy the `main` branch only*.** Si la deixes marcada, el
-   fork no tindrà cap tag ni les branques de la tripulació, i els necessites
-   tots.
-5. Fes clic a **Create fork**.
-
-### 2. Clona el teu fork per SSH
-
-Obre el terminal de PyCharm (Git Bash), situa't a la carpeta on vulguis
-guardar els projectes i clona el **teu fork** (no el de la flota). Canvia
-`<usuari>` pel teu usuari de GitHub:
-
-```bash
-git clone git@github.com:<usuari>/git-rocinante.git
-cd git-rocinante
-```
-
-Git ha creat automàticament el remot `origin`, que apunta al teu fork:
-
-```bash
-git remote -v
-```
-
-### 3. Connecta't amb la flota
-
-Afegeix un segon remot, `upstream`, que apunti al repositori de la flota.
-D'aquí és d'on arribaran les correccions, si mai n'hi ha:
-
-```bash
-git remote add upstream git@github.com:fp-dev-academy/git-rocinante.git
-git remote -v
-```
-
-Ara n'hi ha d'haver quatre línies: `origin` i `upstream`, totes dues per a
-`fetch` i `push`.
-
-### 4. Digues a Git qui ets
-
-```bash
-git config --global user.name "El teu nom i cognom"
-git config --global user.email "el-teu-correu@exemple.cat"
-git config --global core.editor notepad
-```
-
-- El nom i el correu apareixeran a cada commit que facis, i el repositori
-  és públic. Fes servir un correu del teu compte de GitHub, perquè GitHub
-  associï els commits al teu usuari. Si no vols que el teu correu sigui
-  visible, fes servir l'adreça privada que GitHub et dona a *Settings →
-  Emails* (acaba en `@users.noreply.github.com`).
-- `core.editor notepad` fa que, quan Git necessiti que escriguis un
-  missatge, obri el Bloc de notes. Escriu el missatge, desa i **tanca** la
-  finestra: fins que no la tanquis, Git espera.
-
-Comprova-ho:
-
-```bash
-git config --global --list
-```
-
-### 5. Mira els passos del curs
-
-Cada pas del curs és un tag:
-
-```bash
-git tag
-```
-
-### 6. Comprova-ho
-
-Des de la branca `main`:
-
-```bash
-python verifica.py 00
-```
-
-Si `python` no es troba, fes servir `py verifica.py 00` (i, a partir d'ara,
-`py` cada cop que el curs digui `python`).
-
-## Quan ho tinguis
-
-Quan `verifica.py` digui que ho tens tot, ja ets a bord. El pas següent
-comença així:
+Comença des de la teva branca de treball:
 
 ```bash
 git switch -c treball/pas-01 pas-01
-cat REPTE.md
 ```
+
+### 1. Genera brossa
+
+Executa l'aplicació i assegura't que tens el projecte obert a PyCharm:
+
+```bash
+python -m rocinante tripulacio
+git status
+```
+
+Fixa't en les línies `Untracked files`: hi ha `rocinante/__pycache__/`
+(fitxers que crea Python en executar el codi) i `.idea/` (la configuració de
+PyCharm). No formen part del diari i **no s'han de versionar mai**.
+
+> Si PyCharm et pregunta si vols afegir fitxers a Git, respon que **no**.
+
+### 2. Afegeix-te a la tripulació
+
+Obre `rocinante/tripulacio.py` i afegeix una línia a la llista `TRIPULACIO`,
+just abans del `]` final, amb el teu nom:
+
+```python
+    {"nom": "El teu nom", "rol": "cadet"},
+```
+
+Mira què ha canviat i què hi ha a cada zona:
+
+```bash
+git status
+git diff
+```
+
+Passa el canvi al *staging*, torna a mirar l'estat i fes el commit:
+
+```bash
+git add rocinante/tripulacio.py
+git status
+git commit -m "feat: afegeix el teu nom a la tripulació"
+```
+
+> Fes `git add` **del fitxer concret**. Un `git add .` ara afegiria també
+> `__pycache__/` i `.idea/` al commit.
+
+### 3. Ignora la brossa
+
+Crea el fitxer `.gitignore` a l'arrel del projecte (amb PyCharm o des del
+terminal) amb aquest contingut:
+
+```
+__pycache__/
+*.pyc
+.idea/
+```
+
+Des de Git Bash, ho pots fer amb:
+
+```bash
+printf '__pycache__/\n*.pyc\n.idea/\n' > .gitignore
+```
+
+Torna a mirar l'estat: `__pycache__/` i `.idea/` han desaparegut, i ara
+només hi surt `.gitignore`. Fes-ne commit:
+
+```bash
+git status
+git add .gitignore
+git commit -m "chore: ignora els fitxers generats per Python i PyCharm"
+```
+
+### 4. Mira el resultat i comprova-ho
+
+```bash
+git log --oneline -3
+python verifica.py 01
+```
+
+## Missatges de commit: Conventional Commits
+
+El diari de la Rocinante segueix un format fix per als missatges:
+
+```
+<tipus>: <què fa el commit, en imperatiu>
+```
+
+| Tipus | Quan |
+|---|---|
+| `feat` | funcionalitat nova |
+| `fix` | correcció d'un error |
+| `docs` | documentació |
+| `refactor` | canvi de codi que no canvia el comportament |
+| `test` | tests |
+| `chore` | manteniment (configuració, fitxers auxiliars...) |
+
+La primera línia té 72 caràcters com a màxim. Exemples: `feat: afegeix la
+Bobbie a la tripulació`, `fix: corregeix el càlcul del consum`.
