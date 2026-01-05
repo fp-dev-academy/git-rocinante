@@ -1,67 +1,54 @@
-# Pistes · Pas 02
+# Pistes · Pas 03
 
-Llegeix només la pista que necessitis. L'última resol el pas.
+Llegeix només la pista que necessitis.
 
-## `git log` no s'acaba i no puc escriure
+## He fet el revert abans de l'`--amend`
 
-Git fa servir un paginador quan la sortida és llarga. Fes servir les
-fletxes per moure't i prem `q` per sortir.
-
-## No sé quin commit va esborrar la funció
-
-Mira els commits que han tocat el fitxer i, de cadascun, què va canviar:
+L'`--amend` ha modificat el commit del revert, no el d'`asdf`. Torna a
+començar el pas des de zero i fes-ho en ordre: primer l'`--amend` i
+després el revert.
 
 ```bash
-git log --oneline -- rocinante/navegacio.py
-git show <hash>
+git switch -C treball/pas-03 pas-03
 ```
 
-Busca un `-def rumb_emergencia` (esborrada) o un `+def rumb_emergencia`
-(afegida).
-
-## Com sé qui va fer un commit?
+## No sé quin commit va introduir l'"AMOS WAS HERE"
 
 ```bash
-git log -1 --format="%h %an %s" <hash>
+git log --oneline -S "AMOS WAS HERE" -- rocinante/__main__.py
 ```
 
-## `verifica.py` diu que el format del fitxer de respostes no és correcte
+## El revert ha obert el Bloc de notes i no sé què fer
 
-Cada línia ha de ser `clau=valor`, sense cometes. Les línies buides i les
-que comencen amb `#` s'ignoren. Per exemple:
+El missatge ja està escrit. Desa (Ctrl+S) i tanca la finestra. Fins que no
+la tanquis, el terminal es queda esperant.
 
-```
-autor_esborrat=Nom Cognom
-hash_afegit=1a2b3c4
-```
+## He fet l'`--amend` sense `-m` i s'ha obert el Bloc de notes
 
-## M'he quedat en detached HEAD i no sé com tornar
+Hi veuràs el missatge actual (`asdf`). Substitueix-lo pel nou, desa i tanca.
+
+## `verifica.py` diu que HEAD~1 no té el mateix contingut que `asdf`
+
+Abans de l'`--amend` tenies algun canvi al staging, i l'`--amend` l'ha
+afegit al commit. Torna a començar el pas i, abans de l'`--amend`,
+comprova amb `git status` que no hi ha res al staging.
+
+## He esborrat la línia de l'"AMOS WAS HERE" a mà
+
+Funciona, però el repte és fer-ho amb `git revert`: queda constància de
+quin commit es desfà. Torna a començar el pas.
+
+## `verifica.py` diu que la branca no parteix de `pas-03~1`
+
+Has eliminat commits de la història (per exemple, amb `git reset` o
+`git rebase`). Torna a començar el pas.
+
+## `git revert` diu que hi ha un conflicte
+
+No n'hi hauria d'haver cap, si no has tocat `rocinante/__main__.py`.
+Cancel·la el revert i torna a començar el pas:
 
 ```bash
-git switch treball/pas-02
+git revert --abort
+git switch -C treball/pas-03 pas-03
 ```
-
-Si havies fet commits en detached HEAD, Git t'avisarà i et dirà com
-recuperar-los.
-
-## He restaurat el fitxer equivocat
-
-Mentre no n'hagis fet commit, pots tornar-lo a l'estat de l'últim commit:
-
-```bash
-git restore <fitxer>
-```
-
-## Pista final: la cerca per contingut
-
-Git pot buscar directament els commits que han afegit o esborrat un text
-en un fitxer:
-
-```bash
-git log --oneline -S rumb_emergencia -- rocinante/navegacio.py
-```
-
-Sense `-- rocinante/navegacio.py`, també sortiria el commit que va afegir
-aquest repte, perquè el `REPTE.md` també menciona la funció. Amb el fitxer,
-surten dos commits: el de dalt és el més recent (el que la va esborrar) i el
-de baix, el més antic (el que la va afegir).

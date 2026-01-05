@@ -1,114 +1,115 @@
-# Pas 02 · La caixa negra
+# Pas 03 · Esborrar les proves
 
-L'Alex vol provar la maniobra d'evasió i la funció `rumb_emergencia()` ha
-desaparegut de `rocinante/navegacio.py`. Ningú no recorda haver-la tocat.
-Per sort, la nau té una caixa negra que ho recorda tot: **la història de
-Git**.
+L'Amos ha estat provant coses al diari de bord. Ha deixat dos regals:
+
+- l'últim commit té el missatge `asdf`, que no explica res;
+- uns quants commits abans, un commit que diu `feat: millora la sortida de
+  la CLI` fa, en realitat, que l'aplicació escrigui `AMOS WAS HERE` cada
+  vegada que s'executa.
+
+```bash
+git switch -c treball/pas-03 pas-03
+python -m rocinante
+git log --oneline -6
+```
 
 ## Què aprendràs
 
-- Llegir la història: `git log`, `git show` i `git diff`.
-- Viatjar a un commit antic en **detached HEAD** i tornar.
-- Recuperar un fitxer tal com era en un commit antic: `git restore --source`.
+- Treure un canvi del *staging* (`git restore --staged`) i descartar-lo
+  (`git restore`).
+- Corregir l'últim commit amb `git commit --amend`.
+- Desfer un commit antic amb `git revert`.
+- Quan s'ha de fer servir cadascun, i per què `git reset` no és l'eina per
+  desfer coses compartides.
+
+## Desfer: quina eina, i quan
+
+| Situació | Eina | Què fa amb la història |
+|---|---|---|
+| Canvi al directori de treball que no vols | `git restore <fitxer>` | Res: el canvi no ha arribat mai a la història |
+| Fitxer al *staging* que no volies afegir | `git restore --staged <fitxer>` | Res |
+| L'**últim** commit està malament i **no l'has compartit** | `git commit --amend` | **Substitueix** l'últim commit per un de nou |
+| Un commit (antic o recent) **ja compartit** està malament | `git revert <hash>` | **Afegeix** un commit nou que en desfà els canvis |
+
+`git reset` mou la branca enrere i fa desaparèixer commits. És útil en
+local, però si aquells commits ja els tenen els companys, els trenca la
+història. Ho veuràs a l'ampliació (pas 10).
+
+> **Una ficció necessària.** El commit `asdf` ja és al repositori de la
+> flota, és a dir, tècnicament ja està compartit. Per practicar, fes com si
+> l'Amos encara no l'hagués pujat. A la vida real, un commit que ja has pujat
+> **no es modifica** amb `--amend`: es corregeix amb un commit nou. Per això,
+> a `main`, la tripulació l'ha deixat tal com està.
 
 ## El repte
 
+L'**ordre** dels apartats 2 i 3 és important: `--amend` només pot modificar
+l'**últim** commit. Si primer fas el revert, l'últim commit ja no serà el
+d'`asdf`.
+
+### 1. Practica: staging i descartar (no es verifica)
+
+Fes un canvi qualsevol a `README.md` i observa'l a cada zona:
+
 ```bash
-git switch -c treball/pas-02 pas-02
+echo "nota de prova" >> README.md
+git status
+git add README.md
+git status                      # és al staging
+git restore --staged README.md
+git status                      # torna a ser només al directori de treball
+git restore README.md
+git status                      # el canvi ha desaparegut
 ```
 
-### 1. Llegeix la caixa negra
+### 2. Corregeix el missatge `asdf`
+
+Mira què va canviar realment l'últim commit:
 
 ```bash
-git log --oneline --graph
-git log --format="%h %an: %s"
+git show HEAD
 ```
 
-Cada línia és un commit: el **hash curt** (7 caràcters), l'autor i el
-missatge. Per veure només els commits que han tocat un fitxer:
+Corregeix-ne el missatge (en format Conventional Commits) sense canviar-ne
+el contingut:
 
 ```bash
-git log --oneline -- rocinante/navegacio.py
+git commit --amend -m "feat: ascendeix l'Amos a mecànic en cap"
+git log --oneline -3
 ```
 
-Per veure què va canviar en un commit concret (canvia `<hash>` per un dels
-hashos de la llista):
+Fixa't que el hash de l'últim commit ha canviat: no és el mateix commit
+modificat, sinó un commit **nou** que el substitueix.
+
+### 3. Desfés l'"AMOS WAS HERE"
+
+Busca el commit que el va introduir:
 
 ```bash
+git log --oneline -- rocinante/__main__.py
 git show <hash>
 ```
 
-Les línies que comencen amb `-` es van esborrar i les que comencen amb `+`
-es van afegir. Per comparar dos commits qualssevol:
+Desfés-lo amb un revert:
 
 ```bash
-git diff <hash_antic> <hash_nou> -- rocinante/navegacio.py
+git revert <hash>
 ```
 
-### 2. Respon les preguntes
-
-Investiga quin commit va **afegir** `rumb_emergencia()` i quin la va
-**esborrar**. Després crea el fitxer `respostes/pas-02.txt`:
+Git obrirà el Bloc de notes amb un missatge ja escrit
+(`Revert "feat: millora la sortida de la CLI"`). És vàlid tal com està:
+desa i tanca la finestra.
 
 ```bash
-mkdir -p respostes
-notepad respostes/pas-02.txt
+python -m rocinante
+git log --oneline -4
 ```
 
-(El Bloc de notes et preguntarà si vols crear el fitxer: respon que sí.)
-Escriu-hi aquestes dues línies, amb els teus valors:
+El commit de l'Amos **continua a la història**, i al damunt hi ha un commit
+nou que en desfà els canvis. Qualsevol company veurà què va passar i quan.
 
-```
-autor_esborrat=<nom de qui va esborrar la funció>
-hash_afegit=<hash curt del commit que la va afegir>
-```
-
-### 3. Viatja al passat
-
-Pots moure't a qualsevol commit de la història. Ves al commit que va
-afegir la funció:
+### 4. Comprova-ho
 
 ```bash
-git switch --detach <hash_afegit>
-git status
-grep -n "def rumb_emergencia" rocinante/navegacio.py
+python verifica.py 03
 ```
-
-`git status` diu `HEAD detached at ...`: no ets a cap branca, sinó
-directament sobre un commit. Serveix per mirar, no per treballar-hi. Torna
-a la teva branca:
-
-```bash
-git switch -
-git status
-```
-
-### 4. Recupera la funció
-
-Porta el fitxer, tal com era en aquell commit, al teu directori de treball.
-Revisa què canvia i fes-ne commit:
-
-```bash
-git restore --source=<hash_afegit> rocinante/navegacio.py
-git diff
-git add rocinante/navegacio.py
-git commit -m "fix: recupera el rumb d'emergència"
-```
-
-I fes commit de les respostes:
-
-```bash
-git add respostes/pas-02.txt
-git commit -m "docs: respon les preguntes del pas 02"
-```
-
-### 5. Comprova-ho
-
-```bash
-git log --oneline -3
-python verifica.py 02
-```
-
-Fixa't que no has esborrat res de la història: el commit que va eliminar
-la funció hi continua sent. Simplement n'has afegit un de nou que la torna
-a portar.
