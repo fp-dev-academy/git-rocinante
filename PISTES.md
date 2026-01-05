@@ -1,54 +1,46 @@
-# Pistes · Pas 03
+# Pistes · Pas 04
 
 Llegeix només la pista que necessitis.
 
-## He fet el revert abans de l'`--amend`
-
-L'`--amend` ha modificat el commit del revert, no el d'`asdf`. Torna a
-començar el pas des de zero i fes-ho en ordre: primer l'`--amend` i
-després el revert.
+## No sé a quina branca soc
 
 ```bash
-git switch -C treball/pas-03 pas-03
+git branch            # l'asterisc marca la branca actual
+git status            # la primera línia diu "On branch ..."
 ```
 
-## No sé quin commit va introduir l'"AMOS WAS HERE"
+## He fet el commit a `treball/pas-04` en lloc de `feature/rols`
+
+El més senzill és tornar a començar el pas:
 
 ```bash
-git log --oneline -S "AMOS WAS HERE" -- rocinante/__main__.py
+git switch -C treball/pas-04 pas-04
+git branch -D feature/rols      # si ja l'havies creada
 ```
 
-## El revert ha obert el Bloc de notes i no sé què fer
+## El merge no ha dit `Fast-forward`
 
-El missatge ja està escrit. Desa (Ctrl+S) i tanca la finestra. Fins que no
-la tanquis, el terminal es queda esperant.
+Si ha obert el Bloc de notes o diu `Merge made by the 'ort' strategy`,
+s'ha creat un commit de merge. Passa quan `treball/pas-04` té commits que
+no són a `feature/rols`, o si has fet servir `--no-ff`. Torna a començar el
+pas (vegeu la pista anterior) i fes tots els commits a `feature/rols`.
 
-## He fet l'`--amend` sense `-m` i s'ha obert el Bloc de notes
+## `verifica.py` diu que `treball/pas-04` i `feature/rols` no apunten al mateix commit
 
-Hi veuràs el missatge actual (`asdf`). Substitueix-lo pel nou, desa i tanca.
-
-## `verifica.py` diu que HEAD~1 no té el mateix contingut que `asdf`
-
-Abans de l'`--amend` tenies algun canvi al staging, i l'`--amend` l'ha
-afegit al commit. Torna a començar el pas i, abans de l'`--amend`,
-comprova amb `git status` que no hi ha res al staging.
-
-## He esborrat la línia de l'"AMOS WAS HERE" a mà
-
-Funciona, però el repte és fer-ho amb `git revert`: queda constància de
-quin commit es desfà. Torna a començar el pas.
-
-## `verifica.py` diu que la branca no parteix de `pas-03~1`
-
-Has eliminat commits de la història (per exemple, amb `git reset` o
-`git rebase`). Torna a començar el pas.
-
-## `git revert` diu que hi ha un conflicte
-
-No n'hi hauria d'haver cap, si no has tocat `rocinante/__main__.py`.
-Cancel·la el revert i torna a començar el pas:
+Compara on és cada branca:
 
 ```bash
-git revert --abort
-git switch -C treball/pas-03 pas-03
+git log --oneline --graph --all -4
 ```
+
+Si `feature/rols` va per davant, et falta el merge:
+
+```bash
+git switch treball/pas-04
+git merge feature/rols
+```
+
+## `python -c ...` diu `No module named rocinante`
+
+Executa l'ordre des de l'arrel del projecte (la carpeta on hi ha
+`verifica.py`).
