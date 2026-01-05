@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rocinante.tripulacio import capita, es_a_bord, noms  # noqa: E402
+from rocinante.tripulacio import alta, capita, es_a_bord, noms  # noqa: E402
 
 
 class TestTripulacio(unittest.TestCase):
@@ -20,6 +20,10 @@ class TestTripulacio(unittest.TestCase):
     def test_es_a_bord(self):
         self.assertTrue(es_a_bord("Amos Burton"))
         self.assertFalse(es_a_bord("Joe Miller"))
+
+    def test_alta_treu_els_espais(self):
+        tripulant = alta("  Bobbie Draper ", "marine")
+        self.assertEqual(tripulant["nom"], "Bobbie Draper")
 
 
 if __name__ == "__main__":
