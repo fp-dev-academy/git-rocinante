@@ -1,81 +1,62 @@
-# Pistes · Pas 06
+# Pistes · Pas 07
 
-Llegeix només la pista que necessitis. Les últimes són les més concretes.
+Llegeix només la pista que necessitis.
 
-## Com sé si un commit és bo o dolent?
+## `verifica.py` diu que el pas 07 no existeix
 
-Executa el test de navegació. Si acaba bé (`OK`), el commit és bo; si
-falla, és dolent:
-
-```bash
-python tests/test_navegacio.py
-```
-
-## Per on començo?
+Ets en una branca d'un pas anterior, on `verifica.py` encara no coneix
+aquest pas:
 
 ```bash
-git bisect start pas-06 v1.0
+git switch -c treball/pas-07 pas-07
+python verifica.py 07
 ```
 
-Primer el dolent i després el bo. Git et porta a un commit del mig.
-
-## `git bisect` em fa marcar els commits a mà i és pesat
-
-Deixa que ho faci sol:
+## `git push` diu `Permission denied (publickey)` o no es pot connectar
 
 ```bash
-git bisect run python tests/test_navegacio.py
+ssh -T git@github.com
 ```
 
-## On és el hash del culpable?
+Ha de respondre `Hi <usuari>! You've successfully authenticated`. Si no, revisa la clau SSH (vegeu les
+pistes del pas 00).
 
-Al final, `git bisect` escriu `<hash> is the first bad commit` (a les
-versions més noves de Git, `is the first 'bad' commit`), amb el missatge i
-el diff del commit. Els 7 primers caràcters del hash són la
-resposta.
+## `git push` diu `rejected` o `fetch first`
 
-## Ja tinc el culpable. I ara?
-
-Primer, acaba el bisect. Si no, continues en detached HEAD:
+La branca remota té commits que tu no tens. No hauria de passar en aquest
+curs, si cadascú treballa al seu fork. Mira què hi ha:
 
 ```bash
-git bisect reset
+git fetch origin
+git log --oneline --graph --all -8
 ```
 
-Després, desfés el culpable. El revert obrirà el Bloc de notes amb el
-missatge per defecte: desa i tanca.
+## `verifica.py` diu que una branca no està al dia
+
+Has fet commits després del push. Puja'ls:
 
 ```bash
-git revert <hash>
+git switch <branca>
+git status
+git push
 ```
 
-## `git revert` ha donat un conflicte
+## `verifica.py` diu que `treball/pas-05` no té upstream
 
-No n'hi hauria d'haver cap. Comprova que has escrit el hash del **primer**
-commit dolent, i no el d'un altre. Per cancel·lar-ho: `git revert --abort`.
-
-## M'he equivocat marcant un commit
-
-Torna a començar el bisect:
+L'has pujada sense `-u`. Torna-la a pujar amb seguiment:
 
 ```bash
-git bisect reset
-git bisect start pas-06 v1.0
+git push -u origin treball/pas-05
 ```
 
-## `verifica.py` diu que hi ha un bisect en curs
+## La pull request apunta al repositori de la flota
 
-```bash
-git bisect reset
-```
+A *base repository*, tria `<usuari>/git-rocinante`. Si ja l'has creada,
+tanca-la (*Close pull request*) i obre'n una de nova. No passa res: la flota
+no la fusionarà.
 
-## `verifica.py` diu que el pas 06 no existeix
+## L'altra persona no pot comentar la pull request
 
-El bisect encara és en curs. `HEAD` és en un commit antic, i el
-`verifica.py` que hi ha al directori també ho és: encara no coneix el pas 06.
-Acaba el bisect, que et torna a la teva branca, i torna-ho a provar:
-
-```bash
-git bisect reset
-python verifica.py 06
-```
+El fork d'un repositori públic és públic: qualsevol persona amb un compte de
+GitHub hi pot comentar. Comprova que ha iniciat sessió i que li has passat
+l'enllaç de la PR del teu fork, no el de la flota.
