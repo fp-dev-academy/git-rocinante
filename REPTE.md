@@ -1,126 +1,114 @@
-# Pas 01 · Primera entrada al diari
+# Pas 02 · La caixa negra
 
-Ja ets a bord, però el diari encara no ho sap: el teu nom no surt a la llista
-de la tripulació. I, de passada, l'Amos s'ha queixat que el diari s'omple de
-brossa cada vegada que algú obre l'ordinador de bord.
+L'Alex vol provar la maniobra d'evasió i la funció `rumb_emergencia()` ha
+desaparegut de `rocinante/navegacio.py`. Ningú no recorda haver-la tocat.
+Per sort, la nau té una caixa negra que ho recorda tot: **la història de
+Git**.
 
 ## Què aprendràs
 
-- Les **tres zones** de Git: directori de treball, *staging* (índex) i
-  repositori.
-- `git status`, `git diff`, `git add` i `git commit`.
-- Escriure **missatges de commit** amb el format Conventional Commits.
-- Fer que Git **ignori** fitxers amb `.gitignore`.
-
-## Les tres zones
-
-```
-directori de treball  --git add-->  staging  --git commit-->  repositori
-  (els teus fitxers)                (el que                   (la història)
-                                     anirà al commit)
-```
-
-`git status` et diu, en tot moment, què hi ha a cada zona. Executa'l sovint.
+- Llegir la història: `git log`, `git show` i `git diff`.
+- Viatjar a un commit antic en **detached HEAD** i tornar.
+- Recuperar un fitxer tal com era en un commit antic: `git restore --source`.
 
 ## El repte
 
-Comença des de la teva branca de treball:
-
 ```bash
-git switch -c treball/pas-01 pas-01
+git switch -c treball/pas-02 pas-02
 ```
 
-### 1. Genera brossa
-
-Executa l'aplicació i assegura't que tens el projecte obert a PyCharm:
+### 1. Llegeix la caixa negra
 
 ```bash
-python -m rocinante tripulacio
+git log --oneline --graph
+git log --format="%h %an: %s"
+```
+
+Cada línia és un commit: el **hash curt** (7 caràcters), l'autor i el
+missatge. Per veure només els commits que han tocat un fitxer:
+
+```bash
+git log --oneline -- rocinante/navegacio.py
+```
+
+Per veure què va canviar en un commit concret (canvia `<hash>` per un dels
+hashos de la llista):
+
+```bash
+git show <hash>
+```
+
+Les línies que comencen amb `-` es van esborrar i les que comencen amb `+`
+es van afegir. Per comparar dos commits qualssevol:
+
+```bash
+git diff <hash_antic> <hash_nou> -- rocinante/navegacio.py
+```
+
+### 2. Respon les preguntes
+
+Investiga quin commit va **afegir** `rumb_emergencia()` i quin la va
+**esborrar**. Després crea el fitxer `respostes/pas-02.txt`:
+
+```bash
+mkdir -p respostes
+notepad respostes/pas-02.txt
+```
+
+(El Bloc de notes et preguntarà si vols crear el fitxer: respon que sí.)
+Escriu-hi aquestes dues línies, amb els teus valors:
+
+```
+autor_esborrat=<nom de qui va esborrar la funció>
+hash_afegit=<hash curt del commit que la va afegir>
+```
+
+### 3. Viatja al passat
+
+Pots moure't a qualsevol commit de la història. Ves al commit que va
+afegir la funció:
+
+```bash
+git switch --detach <hash_afegit>
+git status
+grep -n "def rumb_emergencia" rocinante/navegacio.py
+```
+
+`git status` diu `HEAD detached at ...`: no ets a cap branca, sinó
+directament sobre un commit. Serveix per mirar, no per treballar-hi. Torna
+a la teva branca:
+
+```bash
+git switch -
 git status
 ```
 
-Fixa't en les línies `Untracked files`: hi ha `rocinante/__pycache__/`
-(fitxers que crea Python en executar el codi) i `.idea/` (la configuració de
-PyCharm). No formen part del diari i **no s'han de versionar mai**.
+### 4. Recupera la funció
 
-> Si PyCharm et pregunta si vols afegir fitxers a Git, respon que **no**.
-
-### 2. Afegeix-te a la tripulació
-
-Obre `rocinante/tripulacio.py` i afegeix una línia a la llista `TRIPULACIO`,
-just abans del `]` final, amb el teu nom:
-
-```python
-    {"nom": "El teu nom", "rol": "cadet"},
-```
-
-Mira què ha canviat i què hi ha a cada zona:
+Porta el fitxer, tal com era en aquell commit, al teu directori de treball.
+Revisa què canvia i fes-ne commit:
 
 ```bash
-git status
+git restore --source=<hash_afegit> rocinante/navegacio.py
 git diff
+git add rocinante/navegacio.py
+git commit -m "fix: recupera el rumb d'emergència"
 ```
 
-Passa el canvi al *staging*, torna a mirar l'estat i fes el commit:
+I fes commit de les respostes:
 
 ```bash
-git add rocinante/tripulacio.py
-git status
-git commit -m "feat: afegeix el teu nom a la tripulació"
+git add respostes/pas-02.txt
+git commit -m "docs: respon les preguntes del pas 02"
 ```
 
-> Fes `git add` **del fitxer concret**. Un `git add .` ara afegiria també
-> `__pycache__/` i `.idea/` al commit.
-
-### 3. Ignora la brossa
-
-Crea el fitxer `.gitignore` a l'arrel del projecte (amb PyCharm o des del
-terminal) amb aquest contingut:
-
-```
-__pycache__/
-*.pyc
-.idea/
-```
-
-Des de Git Bash, ho pots fer amb:
-
-```bash
-printf '__pycache__/\n*.pyc\n.idea/\n' > .gitignore
-```
-
-Torna a mirar l'estat: `__pycache__/` i `.idea/` han desaparegut, i ara
-només hi surt `.gitignore`. Fes-ne commit:
-
-```bash
-git status
-git add .gitignore
-git commit -m "chore: ignora els fitxers generats per Python i PyCharm"
-```
-
-### 4. Mira el resultat i comprova-ho
+### 5. Comprova-ho
 
 ```bash
 git log --oneline -3
-python verifica.py 01
+python verifica.py 02
 ```
 
-## Missatges de commit: Conventional Commits
-
-El diari de la Rocinante segueix un format fix per als missatges:
-
-```
-<tipus>: <què fa el commit, en imperatiu>
-```
-
-| Tipus | Quan |
-|---|---|
-| `feat` | funcionalitat nova |
-| `fix` | correcció d'un error |
-| `docs` | documentació |
-| `refactor` | canvi de codi que no canvia el comportament |
-| `test` | tests |
-| `chore` | manteniment (configuració, fitxers auxiliars...) |
-
-La primera línia té 72 caràcters com a màxim. Exemples: `feat: afegeix la
-Bobbie a la tripulació`, `fix: corregeix el càlcul del consum`.
+Fixa't que no has esborrat res de la història: el commit que va eliminar
+la funció hi continua sent. Simplement n'has afegit un de nou que la torna
+a portar.

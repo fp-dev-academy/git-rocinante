@@ -1,63 +1,67 @@
-# Pistes · Pas 01
+# Pistes · Pas 02
 
-Llegeix només la pista que necessitis.
+Llegeix només la pista que necessitis. L'última resol el pas.
 
-## `git status` no mostra `__pycache__/`
+## `git log` no s'acaba i no puc escriure
 
-Python només el crea quan executa el codi. Executa abans
-`python -m rocinante tripulacio`. Si tampoc no surt `.idea/`, obre la carpeta
-del projecte amb PyCharm.
+Git fa servir un paginador quan la sortida és llarga. Fes servir les
+fletxes per moure't i prem `q` per sortir.
 
-## He fet commit de `__pycache__/` o de `.idea/`
+## No sé quin commit va esborrar la funció
 
-Treu-los de l'índex sense esborrar-los del disc, i fes un commit nou:
-
-```bash
-git rm -r --cached rocinante/__pycache__ .idea
-git commit -m "chore: deixa de versionar els fitxers generats"
-```
-
-Si ja tens el `.gitignore`, no tornaran a aparèixer.
-
-## Vull tornar a començar el pas
+Mira els commits que han tocat el fitxer i, de cadascun, què va canviar:
 
 ```bash
-git switch -C treball/pas-01 pas-01
+git log --oneline -- rocinante/navegacio.py
+git show <hash>
 ```
 
-La branca torna a l'estat inicial del pas. Els fitxers ignorats o sense
-seguiment (`__pycache__/`, `.idea/`, `.gitignore`) es queden on són.
+Busca un `-def rumb_emergencia` (esborrada) o un `+def rumb_emergencia`
+(afegida).
 
-## `verifica.py` diu que `tripulacio.py` té un error de sintaxi
-
-Cada element de la llista acaba amb una coma i va entre `{` i `}`:
-
-```python
-    {"nom": "Alex Kamal", "rol": "pilot"},
-    {"nom": "El teu nom", "rol": "cadet"},
-]
-```
-
-Comprova-ho executant `python -m rocinante tripulacio`.
-
-## El missatge d'un commit no té el format correcte
-
-Si és **l'últim** commit i encara no l'has pujat enlloc, en pots canviar el
-missatge:
+## Com sé qui va fer un commit?
 
 ```bash
-git commit --amend -m "feat: afegeix el teu nom a la tripulació"
+git log -1 --format="%h %an %s" <hash>
 ```
 
-Ho veuràs amb detall al pas 03.
+## `verifica.py` diu que el format del fitxer de respostes no és correcte
 
-## `git commit` ha obert el Bloc de notes
+Cada línia ha de ser `clau=valor`, sense cometes. Les línies buides i les
+que comencen amb `#` s'ignoren. Per exemple:
 
-Has fet `git commit` sense `-m`. Escriu el missatge a la primera línia,
-desa i tanca la finestra. Si la tanques sense escriure res, Git cancel·la el
-commit.
+```
+autor_esborrat=Nom Cognom
+hash_afegit=1a2b3c4
+```
 
-## `verifica.py` diu que el directori de treball no està net
+## M'he quedat en detached HEAD i no sé com tornar
 
-Tens canvis sense commit. `git status` et diu quins són: fes-ne commit o
-descarta'ls amb `git restore <fitxer>`.
+```bash
+git switch treball/pas-02
+```
+
+Si havies fet commits en detached HEAD, Git t'avisarà i et dirà com
+recuperar-los.
+
+## He restaurat el fitxer equivocat
+
+Mentre no n'hagis fet commit, pots tornar-lo a l'estat de l'últim commit:
+
+```bash
+git restore <fitxer>
+```
+
+## Pista final: la cerca per contingut
+
+Git pot buscar directament els commits que han afegit o esborrat un text
+en un fitxer:
+
+```bash
+git log --oneline -S rumb_emergencia -- rocinante/navegacio.py
+```
+
+Sense `-- rocinante/navegacio.py`, també sortiria el commit que va afegir
+aquest repte, perquè el `REPTE.md` també menciona la funció. Amb el fitxer,
+surten dos commits: el de dalt és el més recent (el que la va esborrar) i el
+de baix, el més antic (el que la va afegir).

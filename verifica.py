@@ -31,7 +31,7 @@ TAGS_DEL_CURS: tuple[str, ...] = ('pas-00', 'pas-01', 'pas-02', 'pas-03', 'pas-0
 
 # L'omple el generador: SHA-256 de les respostes esperades, ja normalitzades,
 # per a cada "pas.clau". No hi ha cap resposta en clar.
-RESPOSTES: dict[str, tuple[str, ...]] = {}
+RESPOSTES: dict[str, tuple[str, ...]] = {'02.autor_esborrat': ('bee8e372b5eb53b590dbe92209f6321f52a495d63d99894f9ee200674b13f079', 'abffd7fafb64d1ed88492b395651d323d070c44fb4c685418c067ef9c9d21283'), '02.hash_afegit': ('da2e7205be0825c5b5e4d4ec5e7354f33e8b0e0395ca604c0dfb4c36782639a8',)}
 
 
 class ErrorEntorn(Exception):
@@ -320,6 +320,33 @@ def verifica_pas_01(repo: Path) -> list[Resultat]:
 # <<< pas 01
 
 
+# >>> pas 02
+@pas("02", "La caixa negra")
+def verifica_pas_02(repo: Path) -> list[Resultat]:
+    if not es_avantpassat("pas-02"):
+        return [criteri(False, "la branca parteix de pas-02",
+                        "git switch -c treball/pas-02 pas-02")]
+    funcions = funcions_definides("HEAD", "rocinante/navegacio.py")
+    resultats = criteris_de_respostes(
+        "02",
+        {"autor_esborrat": normalitza_nom, "hash_afegit": normalitza_hash},
+        {"autor_esborrat": "Busca el commit que va esborrar la funció: "
+                           "git log --oneline -- rocinante/navegacio.py i git show <hash>",
+         "hash_afegit": "Hash curt (7 caràcters) del commit que va AFEGIR la funció, "
+                        "no del que la va esborrar."},
+    )
+    return resultats + [
+        criteri(funcions is not None and "rumb_emergencia" in funcions,
+                "rumb_emergencia existeix a rocinante/navegacio.py",
+                "git restore --source=<hash_afegit> rocinante/navegacio.py i fes commit."
+                if funcions is not None else
+                "rocinante/navegacio.py té un error de sintaxi."),
+        criteri(bool(commits_nous("pas-02")), "almenys un commit nou sobre pas-02",
+                "Fes commit dels canvis."),
+        criteri(not en_detached_head(), "no estàs en detached HEAD",
+                "Torna a la teva branca: git switch treball/pas-02"),
+    ]
+# <<< pas 02
 
 
 
