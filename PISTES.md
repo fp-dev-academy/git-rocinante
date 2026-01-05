@@ -1,89 +1,81 @@
-# Pistes · Pas 05
+# Pistes · Pas 06
 
 Llegeix només la pista que necessitis. Les últimes són les més concretes.
 
-## No veig les branques de la tripulació
+## Com sé si un commit és bo o dolent?
+
+Executa el test de navegació. Si acaba bé (`OK`), el commit és bo; si
+falla, és dolent:
 
 ```bash
-git branch -a
-```
-
-Si no surten `remotes/origin/tripulacio/...`, actualitza les branques
-remotes:
-
-```bash
-git fetch origin
+python tests/test_navegacio.py
 ```
 
 ## Per on començo?
 
 ```bash
-git merge origin/tripulacio/naomi-eficiencia
+git bisect start pas-06 v1.0
 ```
 
-Ha de dir `Fast-forward`: `treball/pas-05` no s'havia mogut des que la
-Naomi va crear la seva branca. Després, la de l'Amos:
+Primer el dolent i després el bo. Git et porta a un commit del mig.
+
+## `git bisect` em fa marcar els commits a mà i és pesat
+
+Deixa que ho faci sol:
 
 ```bash
-git merge origin/tripulacio/amos-potencia
+git bisect run python tests/test_navegacio.py
 ```
 
-Aquesta vegada Git diu `CONFLICT`.
+## On és el hash del culpable?
 
-## M'he fet un embolic i vull tornar a començar
+Al final, `git bisect` escriu `<hash> is the first bad commit` (a les
+versions més noves de Git, `is the first 'bad' commit`), amb el missatge i
+el diff del commit. Els 7 primers caràcters del hash són la
+resposta.
 
-Si el merge encara no està acabat:
+## Ja tinc el culpable. I ara?
+
+Primer, acaba el bisect. Si no, continues en detached HEAD:
 
 ```bash
-git merge --abort
+git bisect reset
 ```
 
-Si ja l'havies acabat, torna a començar el pas:
+Després, desfés el culpable. El revert obrirà el Bloc de notes amb el
+missatge per defecte: desa i tanca.
 
 ```bash
-git switch -C treball/pas-05 pas-05
+git revert <hash>
 ```
 
-## El merge ha obert el Bloc de notes
+## `git revert` ha donat un conflicte
 
-És el missatge del commit de merge (`Merge remote-tracking branch ...`).
-És vàlid tal com està: desa i tanca.
+No n'hi hauria d'haver cap. Comprova que has escrit el hash del **primer**
+commit dolent, i no el d'un altre. Per cancel·lar-ho: `git revert --abort`.
 
-## No entenc què he de deixar al fitxer
+## M'he equivocat marcant un commit
 
-Obre `rocinante/combustible.py` i busca `<<<<<<<`. Al primer bloc hi ha
-dues signatures de `calcula_consum`: cadascuna afegeix un paràmetre. La
-bona en té **tots dos**. Al segon bloc, cada versió fa un càlcul: el bo
-**combina** tots dos (multiplica pel factor de combat i divideix per
-l'eficiència).
-
-PyCharm també té una eina per resoldre conflictes: *Git → Resolve
-Conflicts*.
-
-## El test continua fallant
-
-Executa'l i llegeix què diu:
+Torna a començar el bisect:
 
 ```bash
-python tests/test_combustible.py
+git bisect reset
+git bisect start pas-06 v1.0
 ```
 
-- `TypeError: ... unexpected keyword argument` → a la signatura li falta
-  un paràmetre.
-- `AssertionError: 120.0 != 60.0` (o semblant) → el càlcul no combina els
-  dos factors.
+## `verifica.py` diu que hi ha un bisect en curs
 
-## Solució del primer bloc
-
-```python
-def calcula_consum(massa_t, acceleracio_g, eficiencia=1.0, mode_combat=False):
+```bash
+git bisect reset
 ```
 
-## Solució del segon bloc
+## `verifica.py` diu que el pas 06 no existeix
 
-```python
-    factor = 1.5 if mode_combat else 1.0
-    return massa_t * acceleracio_g * 0.8 * factor / eficiencia
+El bisect encara és en curs. `HEAD` és en un commit antic, i el
+`verifica.py` que hi ha al directori també ho és: encara no coneix el pas 06.
+Acaba el bisect, que et torna a la teva branca, i torna-ho a provar:
+
+```bash
+git bisect reset
+python verifica.py 06
 ```
-
-Després: `git add rocinante/combustible.py` i `git commit`.

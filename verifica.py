@@ -31,7 +31,7 @@ TAGS_DEL_CURS: tuple[str, ...] = ('pas-00', 'pas-01', 'pas-02', 'pas-03', 'pas-0
 
 # L'omple el generador: SHA-256 de les respostes esperades, ja normalitzades,
 # per a cada "pas.clau". No hi ha cap resposta en clar.
-RESPOSTES: dict[str, tuple[str, ...]] = {'02.autor_esborrat': ('bee8e372b5eb53b590dbe92209f6321f52a495d63d99894f9ee200674b13f079', 'abffd7fafb64d1ed88492b395651d323d070c44fb4c685418c067ef9c9d21283'), '02.hash_afegit': ('da2e7205be0825c5b5e4d4ec5e7354f33e8b0e0395ca604c0dfb4c36782639a8',)}
+RESPOSTES: dict[str, tuple[str, ...]] = {'02.autor_esborrat': ('bee8e372b5eb53b590dbe92209f6321f52a495d63d99894f9ee200674b13f079', 'abffd7fafb64d1ed88492b395651d323d070c44fb4c685418c067ef9c9d21283'), '02.hash_afegit': ('da2e7205be0825c5b5e4d4ec5e7354f33e8b0e0395ca604c0dfb4c36782639a8',), '06.culpable': ('f0d1ded3db54acd9ab683e3fcb532d55bb8656771558dc9dc6d80b959ed52b49',)}
 
 
 class ErrorEntorn(Exception):
@@ -481,6 +481,34 @@ def verifica_pas_05(repo: Path) -> list[Resultat]:
 # <<< pas 05
 
 
+# >>> pas 06
+@pas("06", "Algú ha trencat la navegació")
+def verifica_pas_06(repo: Path) -> list[Resultat]:
+    if not es_avantpassat("pas-06"):
+        return [criteri(False, "la branca parteix de pas-06",
+                        "git switch -c treball/pas-06 pas-06")]
+    bisect_log = Path(sortida("rev-parse", "--git-path", "BISECT_LOG"))
+    bisect_en_curs = bisect_log.exists()
+    culpable = RESPOSTES.get("06.culpable", ())
+    revertits = re.findall(r"This reverts commit ([0-9a-f]{40})",
+                           sortida("log", "--format=%B", "pas-06..HEAD"))
+    revert_bo = any(sha256(h[:7]) in culpable for h in revertits)
+    test = executa_test_a_head("tests/test_navegacio.py")
+    resultats = criteris_de_respostes(
+        "06", {"culpable": normalitza_hash},
+        {"culpable": "El primer commit dolent: el que git bisect anomena "
+                     "«first bad commit». Hash curt, 7 caràcters."})
+    return resultats + [
+        criteri(revert_bo, "hi ha un revert del commit culpable sobre pas-06",
+                "git revert <hash del culpable>" if not revertits else
+                "Has fet revert d'un commit que no és el culpable. Revisa la resposta de git bisect."),
+        criteri(test is not None and test.returncode == 0,
+                "python tests/test_navegacio.py passa",
+                "Executa el test per veure què falla."),
+        criteri(not bisect_en_curs, "no hi ha cap bisect en curs",
+                "git bisect reset"),
+    ]
+# <<< pas 06
 
 
 
