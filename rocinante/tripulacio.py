@@ -1,4 +1,7 @@
-"""Tripulació de la Rocinante."""
+"""Tripulació de la Rocinante.
+
+Cada tripulant és un diccionari amb les claus "nom" i "rol".
+"""
 
 TRIPULACIO = [
     {"nom": "James Holden", "rol": "capità"},
