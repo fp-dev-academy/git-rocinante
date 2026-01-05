@@ -21,4 +21,6 @@ def consum_en_repos(massa_t):
 
 def autonomia(massa_reaccio_t, consum_t_h):
     """Hores que es pot mantenir un consum amb la massa de reacció disponible."""
+    if consum_t_h <= 0:
+        raise ValueError("el consum ha de ser positiu")
     return massa_reaccio_t / consum_t_h
