@@ -11,3 +11,8 @@ def temps_trajecte(distancia_km, velocitat_kms):
 def rumb_emergencia(rumb_perill):
     """Rumb d'emergència (en graus): el sentit contrari al del perill."""
     return (rumb_perill + 180) % 360
+
+
+def distancia_recorreguda(velocitat_kms, segons):
+    """Distància recorreguda, en km."""
+    return velocitat_kms * segons
