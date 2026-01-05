@@ -6,7 +6,7 @@ from rocinante.combustible import autonomia, calcula_consum
 from rocinante.navegacio import rumb_emergencia, temps_trajecte
 from rocinante.tripulacio import TRIPULACIO
 
-US = """Ús: python -m rocinante <ordre>
+US = """Ús: python -m rocinante <ordre> [valors...]
 
 Ordres:
   tripulacio                            llista la tripulació
