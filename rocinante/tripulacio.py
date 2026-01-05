@@ -25,6 +25,6 @@ def capita():
 
 def alta(nom, rol):
     """Dona d'alta un tripulant nou (només durant l'execució)."""
-    tripulant = {"nom": nom, "rol": rol}
+    tripulant = {"nom": nom.strip(), "rol": rol.strip()}
     TRIPULACIO.append(tripulant)
     return tripulant
