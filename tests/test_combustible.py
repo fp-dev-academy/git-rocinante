@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rocinante.combustible import calcula_consum  # noqa: E402
+from rocinante.combustible import autonomia, calcula_consum  # noqa: E402
 
 
 class TestCalculaConsum(unittest.TestCase):
@@ -25,6 +25,9 @@ class TestCalculaConsum(unittest.TestCase):
     def test_eficiencia_i_mode_combat(self):
         self.assertAlmostEqual(
             calcula_consum(100, 1, eficiencia=2.0, mode_combat=True), 60.0)
+
+    def test_autonomia(self):
+        self.assertAlmostEqual(autonomia(100, 20), 5.0)
 
 
 if __name__ == "__main__":
