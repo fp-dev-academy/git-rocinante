@@ -25,6 +25,7 @@ def main(arguments):
         if ordre == "tripulacio" and not valors:
             for tripulant in TRIPULACIO:
                 print(f"{tripulant['nom']} ({tripulant['rol']})")
+            print(f"Total: {len(TRIPULACIO)} tripulants")
         elif ordre == "consum":
             massa_t, acceleracio_g = map(float, valors)
             print(f"Consum: {calcula_consum(massa_t, acceleracio_g):.2f} t/h")
