@@ -17,3 +17,8 @@ def consum_en_repos(massa_t):
     La massa és en tones i el resultat, en tones per hora.
     """
     return massa_t * 0.01
+
+
+def autonomia(massa_reaccio_t, consum_t_h):
+    """Hores que es pot mantenir un consum amb la massa de reacció disponible."""
+    return massa_reaccio_t / consum_t_h
