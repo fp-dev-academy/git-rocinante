@@ -3,7 +3,7 @@
 TRIPULACIO = [
     {"nom": "James Holden", "rol": "capità"},
     {"nom": "Naomi Nagata", "rol": "enginyera"},
-    {"nom": "Amos Burton", "rol": "mecànic"},
+    {"nom": "Amos Burton", "rol": "mecànic en cap"},
     {"nom": "Alex Kamal", "rol": "pilot"},
 ]
 
