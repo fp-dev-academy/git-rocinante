@@ -438,6 +438,47 @@ def verifica_pas_04(repo: Path) -> list[Resultat]:
 # <<< pas 04
 
 
+# >>> pas 05
+@pas("05", "Conflicte a la sala de màquines")
+def verifica_pas_05(repo: Path) -> list[Resultat]:
+    if not es_avantpassat("pas-05"):
+        return [criteri(False, "la branca parteix de pas-05",
+                        "git switch -c treball/pas-05 pas-05")]
+    branques = ("tripulacio/naomi-eficiencia", "tripulacio/amos-potencia")
+    puntes = {nom: referencia_de_branca(nom) for nom in branques}
+    falten = [nom for nom, hash_ in puntes.items() if not hash_ or not es_avantpassat(hash_)]
+    merge_a_mitges = bool(sortida("rev-parse", "--verify", "--quiet", "MERGE_HEAD"))
+    merges = [c for c in sortida("rev-list", "--merges", "--min-parents=2", "--max-parents=2",
+                                 "pas-05..HEAD").splitlines()]
+    # Només els fitxers que han canviat: REPTE.md mostra uns marcadors d'exemple.
+    canviats = sortida("diff", "--name-only", "pas-05", "HEAD").splitlines()
+    marcadors = sortida("grep", "-n", "-I", "-E", r"^(<{7}|={7}|>{7})( |$)", "HEAD",
+                        "--", *canviats) if canviats else ""
+    test = executa_test_a_head("tests/test_combustible.py")
+    v1 = sortida("rev-parse", "--verify", "--quiet", "v1.0^{commit}")
+    if merge_a_mitges:
+        pista_branques = ("Tens un merge a mig fer: resol els conflictes, fes git add i acaba'l "
+                          "amb git commit.")
+    else:
+        pista_branques = "git merge origin/" + " i git merge origin/".join(falten) if falten else ""
+    return [
+        criteri(not falten, "les dues branques de la tripulació estan integrades a HEAD"
+                + (f" (falta: {', '.join(falten)})" if falten else ""), pista_branques),
+        criteri(bool(merges), "hi ha un commit de merge amb 2 pares sobre pas-05",
+                "Integra primer la de la Naomi i després la de l'Amos, amb git merge."),
+        criteri(not marcadors, "cap fitxer versionat conté marcadors de conflicte (<<<<<<<, =======, >>>>>>>)",
+                f"Esborra els marcadors i fes un commit nou. Primer: {marcadors.splitlines()[0][:80]}"
+                if marcadors else ""),
+        criteri(test is not None and test.returncode == 0,
+                "python tests/test_combustible.py passa",
+                "La funció ha d'acceptar eficiencia i mode_combat alhora. "
+                "Executa el test per veure què falla."),
+        criteri(bool(v1) and not es_avantpassat(v1),
+                "la resolució és teva: HEAD no inclou v1.0",
+                "Has integrat main, que ja té el merge de la tripulació. Torna a començar: "
+                "git switch -C treball/pas-05 pas-05"),
+    ]
+# <<< pas 05
 
 
 
