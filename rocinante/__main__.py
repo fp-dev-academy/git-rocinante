@@ -15,7 +15,6 @@ Ordres:
 
 
 def main(arguments):
-    print("AMOS WAS HERE")
     if not arguments:
         print("Diari de bord de la Rocinante.\n")
         print(US)
