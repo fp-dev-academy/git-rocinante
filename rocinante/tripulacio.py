@@ -13,6 +13,11 @@ def noms():
     return [tripulant["nom"] for tripulant in TRIPULACIO]
 
 
+def capita():
+    """Retorna el tripulant que té el rol de capità."""
+    return next(t for t in TRIPULACIO if t["rol"] == "capità")
+
+
 def alta(nom, rol):
     """Dona d'alta un tripulant nou (només durant l'execució)."""
     tripulant = {"nom": nom, "rol": rol}
