@@ -13,6 +13,11 @@ def noms():
     return [tripulant["nom"] for tripulant in TRIPULACIO]
 
 
+def es_a_bord(nom):
+    """Diu si hi ha algú amb aquest nom a la tripulació."""
+    return nom in noms()
+
+
 def capita():
     """Retorna el tripulant que té el rol de capità."""
     return next(t for t in TRIPULACIO if t["rol"] == "capità")
